@@ -3,11 +3,13 @@ from abc import ABC, abstractmethod
 import json
 
 parser = argparse.ArgumentParser()
-parser.add_argument('students_file', type=str, help='Path to file "students.json"')
-parser.add_argument('rooms_file', type=str, help='Path to file "rooms.json"')
-parser.add_argument('format_file', type=str, choices=['json', 'xml'], help='Format JSON or XML')
+# parser.add_argument('students_file', type=str, help='Path to file "students.json"')
+# parser.add_argument('rooms_file', type=str, help='Path to file "rooms.json"')
+# parser.add_argument('format_file', type=str, choices=['json', 'xml'], help='Format JSON or XML')
 p = parser.parse_args()
 
+p.student_file = "students.json"
+p.rooms_file = "rooms.json"
 
 class Room:
     def __init__(self, id, name):
@@ -50,28 +52,29 @@ class XML_Writer(Writer):
 class Reader(ABC):
 
     @abstractmethod
-    def read(self):
+    def read(self, json_file):
         pass
 
 
 class JSON_Reader(Reader):
 
-    def read(self):
-        pass
-
-
-strjsn = '[{"id":990, "name":"Room #990"}, {"id":970, "name":"Room #970"}]'
-
-j = json.loads(strjsn)
-print(j)
+    def read(self, json_file):
+            with open(json_file, encoding='UTF-8') as file:
+                data = json.load(file)
+            return data
 
 
 def main():
 
-    with open('rooms.json', encoding='UTF-8') as file_rooms:
-        data1 = json.load(file_rooms)
+    rooms = JSON_Reader()
 
-    print(data1)
+    data_rooms = rooms.read(p.rooms_file)
+    # print(data_rooms)
+
+    students = JSON_Reader()
+
+    data_students = students.read(p.student_file)
+    # print(data_students)
 
 
 if __name__ == "__main__":
