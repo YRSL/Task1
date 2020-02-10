@@ -11,10 +11,17 @@ p = parser.parse_args()
 p.student_file = "students.json"
 p.rooms_file = "rooms.json"
 
+
 class Room:
     def __init__(self, id, name):
         self.id = id
         self.name = name
+
+    def display_info(self):
+        print(self.__str__())
+
+    def __str__(self):
+        return print("ID: " + self.id + " Name: " + self.name)
 
 
 class Student:
@@ -64,17 +71,50 @@ class JSON_Reader(Reader):
             return data
 
 
+class Object_Creator(ABC):
+
+    @abstractmethod
+    def create_objects(self, dict_date, dict_object):
+        pass
+
+
+class Room_Creator(Object_Creator):
+
+    def create_objects(self, dict_room, dict_object_rooms):
+        room = Room(id=dict_room["id"], name=dict_room["name"])
+        dict_object_rooms.append(room)
+
+
+class Student_Creator(Object_Creator):
+
+    def create_objects(self, dict_students, dict_object_students):
+        student = Student(id=dict_students["id"], name=dict_students["name"], room=dict_students["room"])
+        dict_object_students.append(student)
+
+
 def main():
 
     rooms = JSON_Reader()
 
     data_rooms = rooms.read(p.rooms_file)
-    # print(data_rooms)
+
+    dict_object_rooms = []
+
+    rooms_object = Room_Creator()
+
+    dict_rooms = [rooms_object.create_objects(i, dict_object_rooms) for i in data_rooms]
+
+# ----------------------------------------
 
     students = JSON_Reader()
 
     data_students = students.read(p.student_file)
-    # print(data_students)
+
+    dict_object_students = []
+
+    students_object = Student_Creator()
+
+    dict_students = [students_object.create_objects(i, dict_object_students) for i in data_students]
 
 
 if __name__ == "__main__":
