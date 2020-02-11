@@ -20,8 +20,8 @@ class Room:
     def display_info(self):
         print(self.__str__())
 
-    def __str__(self):
-        return print("ID: " + self.id + " Name: " + self.name)
+    def to_dict(self):
+        return {'id': self.id, 'name': self.name}
 
 
 class Student:
@@ -30,24 +30,33 @@ class Student:
         self.name = name
         self.room = room
 
+    def to_dict(self):
+        return {'id': self.id, 'name': self.name, 'room': self.room}
+
 
 class Room_Student(Room):
     def __init__(self, id, name, students):
         Room.__init__(self, id, name)
         self.students = students
 
+    def to_dict(self):
+        return {'id': self.id, 'name': self.name, 'students': [student.to_dict() for student in self.students]}
+
 
 class Writer(ABC):
 
     @abstractmethod
-    def write(self):
+    def write(self, *args):
         pass
 
 
 class JSON_Writer(Writer):
 
-    def write(self):
-        pass
+    @staticmethod
+    def write(list_object_rooms_students):
+        data_result = [i.to_dict() for i in list_object_rooms_students]
+        with open('result.json', 'w', encoding='UTF-8') as file:
+            json.dump(data_result, file, ensure_ascii=False)
 
 
 class XML_Writer(Writer):
@@ -74,22 +83,42 @@ class JSON_Reader(Reader):
 class Object_Creator(ABC):
 
     @abstractmethod
-    def create_objects(self, dict_date, dict_object):
+    def create_objects(self, *args):
         pass
 
 
 class Room_Creator(Object_Creator):
 
-    def create_objects(self, dict_room, dict_object_rooms):
+    def create_objects(self, dict_room, list_object_rooms):
         room = Room(id=dict_room["id"], name=dict_room["name"])
-        dict_object_rooms.append(room)
+        list_object_rooms.append(room)
 
 
 class Student_Creator(Object_Creator):
 
-    def create_objects(self, dict_students, dict_object_students):
+    def create_objects(self, dict_students, list_object_students):
         student = Student(id=dict_students["id"], name=dict_students["name"], room=dict_students["room"])
-        dict_object_students.append(student)
+        list_object_students.append(student)
+
+
+class Room_Student_Creator(Object_Creator):
+
+    def create_objects(self, room, list_object_students, list_object_rooms_students):
+        room_student = Room_Student(id=room.id, name=room.name, students=Logic.find_students(list_object_students, room))
+        list_object_rooms_students.append(room_student)
+
+
+class Logic:
+
+    @staticmethod
+    def find_students(list_students, room):
+        list_students_in_room = []
+
+        for student in list_students:
+            if student.room == room.id:
+                list_students_in_room.append(student)
+
+        return list_students_in_room
 
 
 def main():
@@ -98,11 +127,16 @@ def main():
 
     data_rooms = rooms.read(p.rooms_file)
 
-    dict_object_rooms = []
+    list_object_rooms = []
 
     rooms_object = Room_Creator()
 
-    dict_rooms = [rooms_object.create_objects(i, dict_object_rooms) for i in data_rooms]
+    for room in data_rooms:
+        rooms_object.create_objects(room, list_object_rooms)
+
+    # print(list_object_rooms)
+    # fres = [i.to_dict() for i in list_object_rooms]
+    # print(fres)
 
 # ----------------------------------------
 
@@ -110,11 +144,28 @@ def main():
 
     data_students = students.read(p.student_file)
 
-    dict_object_students = []
+    list_object_students = []
 
     students_object = Student_Creator()
 
-    dict_students = [students_object.create_objects(i, dict_object_students) for i in data_students]
+    for student in data_students:
+        students_object.create_objects(student, list_object_students)
+
+# ----------------------------------------
+    list_object_rooms_students = []
+
+    rooms_students_object = Room_Student_Creator()
+
+    for room in list_object_rooms:
+        rooms_students_object.create_objects(room, list_object_students, list_object_rooms_students)
+
+    # print(list_object_rooms_students)
+    # fres = [i.to_dict() for i in list_object_rooms_students]
+    # print(fres)
+
+# ----------------------------------------
+
+    JSON_Writer.write(list_object_rooms_students)
 
 
 if __name__ == "__main__":
