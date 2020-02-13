@@ -1,6 +1,8 @@
 import argparse
-from abc import ABC, abstractmethod
 import json
+from abc import ABC, abstractmethod
+import xml.etree.ElementTree as xml
+
 
 parser = argparse.ArgumentParser()
 # parser.add_argument('students_file', type=str, help='Path to file "students.json"')
@@ -46,23 +48,26 @@ class Room_Student(Room):
 class Writer(ABC):
 
     @abstractmethod
-    def write(self, *args):
+    def writeq(*args):
         pass
 
 
 class JSON_Writer(Writer):
 
     @staticmethod
-    def write(list_object_rooms_students):
-        data_result = [i.to_dict() for i in list_object_rooms_students]
+    def writeq(list_objects):
+        data_result = [i.to_dict() for i in list_objects]
         with open('result.json', 'w', encoding='UTF-8') as file:
             json.dump(data_result, file, ensure_ascii=False)
 
 
 class XML_Writer(Writer):
 
-    def write(self):
-        pass
+    @staticmethod
+    def writeq(root):
+        tree = xml.ElementTree(root)
+        with open('updated22.xml', 'wb') as f:
+            tree.write(f, encoding="utf-8")
 
 
 class Reader(ABC):
@@ -83,7 +88,7 @@ class JSON_Reader(Reader):
 class Object_Creator(ABC):
 
     @abstractmethod
-    def create_objects(self, *args):
+    def create_objects(*args):
         pass
 
 
@@ -106,6 +111,47 @@ class Room_Student_Creator(Object_Creator):
     def create_objects(self, room, list_object_students, list_object_rooms_students):
         room_student = Room_Student(id=room.id, name=room.name, students=Logic.find_students(list_object_students, room))
         list_object_rooms_students.append(room_student)
+
+
+class Parser:
+
+    @staticmethod
+    def parse(*args):
+        pass
+
+class XML_Parser(Parser):
+
+    @staticmethod
+    def parse_students(list_students, root):
+
+        students = xml.Element("students")
+        root.append(students)
+        for student in list_students:
+            id = xml.SubElement(students, "id")
+            id.text = str(student.id)
+            name = xml.SubElement(students, "name")
+            name.text = str(student.name)
+            room = xml.SubElement(students, "room")
+            room.text = str(student.room)
+        return students
+
+
+    @staticmethod
+    def parse(list_objects):
+
+        root = xml.Element("room")
+        for i in list_objects:
+            el = xml.Element("a")
+
+            id = xml.SubElement(el, "id")
+            id.text = str(i.id)
+            name = xml.SubElement(el, "name")
+            name.text = str(i.name)
+
+            XML_Parser.parse_students(i.students, root)
+        return root
+
+
 
 
 class Logic:
@@ -165,7 +211,11 @@ def main():
 
 # ----------------------------------------
 
-    JSON_Writer.write(list_object_rooms_students)
+    JSON_Writer.writeq(list_object_rooms_students)
+    XML_Writer.writeq(XML_Parser.parse(list_object_rooms_students))
+
+# ----------------------------------------
+
 
 
 if __name__ == "__main__":
