@@ -12,30 +12,28 @@ class Parser(ABC):
 class XML_Parser(Parser):
 
     @staticmethod
-    def parse_students(list_students, root):
-
-        students = xml.Element("students")
-        root.append(students)
-        for student in list_students:
-            id = xml.SubElement(students, "id")
-            id.text = str(student.id)
-            name = xml.SubElement(students, "name")
-            name.text = str(student.name)
-            room = xml.SubElement(students, "room")
-            room.text = str(student.room)
-        return students
-
-    @staticmethod
     def parse(list_objects):
 
-        root = xml.Element("room")
+        root = xml.Element("root")
+        ell = xml.Element("Room")
+        root.append(ell)
         for i in list_objects:
-            el = xml.Element("a")
+            el = xml.SubElement(ell, "Room: " + str(list_objects.index(i)))
 
             id = xml.SubElement(el, "id")
             id.text = str(i.id)
             name = xml.SubElement(el, "name")
             name.text = str(i.name)
 
-            XML_Parser.parse_students(i.students, root)
+            students = xml.Element("students")
+            el.append(students)
+
+            for student in i.students:
+                id_student = xml.SubElement(students, "id")
+                id_student.text = str(student.id)
+                name_student = xml.SubElement(students, "name")
+                name_student.text = str(student.name)
+                room_studen = xml.SubElement(students, "room")
+                room_studen.text = str(student.room)
+
         return root

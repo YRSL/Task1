@@ -29,7 +29,7 @@ class Student_Creator(Object_Creator):
 class Students_In_Room_Creator(Object_Creator):
 
     @staticmethod
-    def create_objects(room_object: object, list_object_students: list, list_students_in_room_object: list):
-        students_in_room_object = objects.Students_In_Room(id=room_object.id, name=room_object.name,
+    def create_objects(room_object: object, list_object_students: list, list_object_students_in_room: list):
+        object_students_in_room = objects.Students_In_Room(id=room_object.id, name=room_object.name,
                                         students=operations.Operations.find_students(list_object_students, room_object))
-        list_students_in_room_object.append(students_in_room_object)
+        list_object_students_in_room.append(object_students_in_room)
