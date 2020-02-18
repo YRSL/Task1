@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
-import xml.etree.ElementTree as xml
+from lxml import etree as xml
+# import xml.etree.ElementTree as xml
 
 
 class Parser(ABC):
@@ -45,6 +46,7 @@ class XML_Parser(Parser):
             el.append(students)
             ell.append(el)
 
-        result = xml.tostring(root, encoding="utf-8")
+        result = xml.tostring(root, encoding="utf-8", pretty_print=True)
+        # print(et.tostring(root, pretty_print=True).decode("utf-8"))
 
         return result
