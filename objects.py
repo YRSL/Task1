@@ -20,7 +20,7 @@ class Student:
         return {'id': self.id, 'name': self.name, 'room': self.room}
 
 
-class Students_In_Room(Room):
+class StudentsInRoom(Room):
     def __init__(self, id, name, students):
         Room.__init__(self, id, name)
         self.students = students

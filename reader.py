@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import json
 
+
 class Reader(ABC):
 
     @abstractmethod
@@ -8,7 +9,7 @@ class Reader(ABC):
         pass
 
 
-class JSON_Reader(Reader):
+class JsonReader(Reader):
 
     @staticmethod
     def read(json_file):

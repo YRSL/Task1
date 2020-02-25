@@ -9,7 +9,7 @@ class Writer(ABC):
         pass
 
 
-class JSON_Writer(Writer):
+class JsonWriter(Writer):
 
     @staticmethod
     def write(list_objects):
@@ -18,7 +18,7 @@ class JSON_Writer(Writer):
             json.dump(data_result, file, sort_keys=True, indent=3)
 
 
-class XML_Writer(Writer):
+class XmlWriter(Writer):
 
     @staticmethod
     def write(root):
